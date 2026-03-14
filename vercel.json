@@ -1,0 +1,6 @@
+{
+  "framework": "vite",
+  "installCommand": "cd reactor-3d && npm install",
+  "buildCommand": "cd reactor-3d && npm run build",
+  "outputDirectory": "reactor-3d/dist"
+}
