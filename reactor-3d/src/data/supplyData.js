@@ -66,5 +66,19 @@ export const SUPPLY_DATA = {
       { name:"Heavy Water Board", role:"D₂O production at 8 plants across India. Critical national infrastructure.", tag:"Govt monopoly", tagColor:"#CECBF6", tagBg:"#26215C" },
       { name:"ECIL", role:"Reactor protection system, digital control & safety I&C, DCS, neutron flux measurement.", tag:"I&C monopoly", tagColor:"#CECBF6", tagBg:"#26215C" },
     ]
+  },
+  cooling: {
+    label: "Cooling & BOP systems", color: "#8b949e", crit: 1,
+    critText: "Non-nuclear safety class. Balance of Plant (BOP) infrastructure.",
+    moat: 42,
+    moatText: "Open competitive bidding. Reliability and scale are the primary differentiators. BHEL and ISGEC lead the domestic market.",
+    specs: [["250,000","GPM flow"],["8 x 200 kW","Fan power"],["12,000 m³","Basin volume"],["Concrete","Natural draft"]],
+    desc: "Tertiary cooling circuit. Natural or induced draft cooling towers reject plant heat to the atmosphere. Circulating water pumps (CWP) move massive volumes of water from the condenser to the towers. Seawater (coastal) or freshwater (inland) intake systems required.",
+    suppliers: [
+      { name:"Paharpur Cooling Towers", role:"Natural and induced draft cooling towers. Market leader in industrial cooling solutions.", tag:"Global leader", tagColor:"#97C459", tagBg:"#0d1a0d" },
+      { name:"ISGEC Ltd", role:"Balance of Plant (BOP) engineering, circ-water piping, heavy structural fabrication.", tag:"BOP fab", tagColor:"#85B7EB", tagBg:"#0a1929" },
+      { name:"Kilburn Engineering", role:"Vapour recovery, air-cooled heat exchangers, auxiliary cooling systems.", tag:"Niche BOP", tagColor:"#97C459", tagBg:"#0d1a0d" },
+      { name:"Kirloskar Brothers", role:"Large volume circulating water pumps for tertiary loops.", tag:"Pump specialist", tagColor:"#EF9F27", tagBg:"#1a1000" },
+    ]
   }
 };

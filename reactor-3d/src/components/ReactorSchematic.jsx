@@ -19,6 +19,11 @@ const FLOW_ANIMATION_CSS = `
     filter: drop-shadow(0 0 12px currentColor);
     stroke-width: 2.5px;
   }
+  .tech-grid {
+    background-image: radial-gradient(#21262d 1px, transparent 1px);
+    background-size: 20px 20px;
+    opacity: 0.2;
+  }
 `;
 
 export default function ReactorSchematic({ selectedId, onSelect, onHover, flowAnimation }) {
@@ -38,11 +43,12 @@ export default function ReactorSchematic({ selectedId, onSelect, onHover, flowAn
   };
 
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#0d1117] p-8 pb-32 overflow-hidden select-none">
+    <div className="w-full h-full flex items-center justify-center bg-[#0d1117] p-12 pb-32 overflow-hidden select-none relative">
+      <div className="absolute inset-0 tech-grid pointer-events-none" />
       <style>{FLOW_ANIMATION_CSS}</style>
       <svg 
-        viewBox="0 0 1000 650" 
-        className="w-full h-full max-w-[1200px]"
+        viewBox="0 0 1000 600" 
+        className="w-full h-full max-w-[1300px]"
         preserveAspectRatio="xMidYMid meet"
       >
         {/* --- DEFS --- */}
@@ -58,8 +64,8 @@ export default function ReactorSchematic({ selectedId, onSelect, onHover, flowAn
         </defs>
 
         {/* --- BACKGROUND STRUCTURE --- */}
-        <path d="M50,550 L350,550 L350,200 L50,200 Z" fill="#161b22" stroke="#21262d" strokeWidth="2" /> {/* Containment */}
-        <path d="M350,550 L750,550 L750,350 L350,350 Z" fill="#161b22" stroke="#21262d" strokeWidth="2" /> {/* Turbine Hall */}
+        <path d="M50,450 L350,450 L350,100 L50,100 Z" fill="#161b22" stroke="#21262d" strokeWidth="2" /> {/* Containment */}
+        <path d="M350,450 L750,450 L750,250 L350,250 Z" fill="#161b22" stroke="#21262d" strokeWidth="2" /> {/* Turbine Hall */}
         
         {/* Primary Loop (Clickable) */}
         <g 
@@ -71,22 +77,22 @@ export default function ReactorSchematic({ selectedId, onSelect, onHover, flowAn
         >
           {/* Hit area for the loop */}
           <g stroke="currentColor" strokeWidth="12" fill="none" opacity="0.1" className="component-shape">
-             <path d="M250,400 Q300,400 300,450 T380,450" />
-             <path d="M380,480 Q300,480 300,520 T200,520 L200,450" />
+             <path d="M250,300 Q300,300 300,350 T380,350" />
+             <path d="M380,380 Q300,380 300,420 T200,420 L200,350" />
           </g>
           
           <g stroke="currentColor" strokeWidth="8" fill="none" opacity="0.4">
-             <path d="M250,400 Q300,400 300,450 T380,450" />
-             <path d="M380,480 Q300,480 300,520 T200,520 L200,450" />
+             <path d="M250,300 Q300,300 300,350 T380,350" />
+             <path d="M380,380 Q300,380 300,420 T200,420 L200,350" />
           </g>
           
           {flowAnimation && (
              <g stroke="currentColor" strokeWidth="2" fill="none" className="flow-path">
-               <path d="M250,400 Q300,400 300,450 T380,450" />
-               <path d="M380,480 Q300,480 300,520 T200,520 L200,450" />
+               <path d="M250,300 Q300,300 300,350 T380,350" />
+               <path d="M380,380 Q300,380 300,420 T200,420 L200,350" />
              </g>
           )}
-          <text x="320" y="505" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">PRIMARY PHT LOOP</text>
+          <text x="320" y="405" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">PRIMARY PHT LOOP</text>
         </g>
 
         {/* Secondary Loop (Part of Turbine/Island) */}
@@ -98,20 +104,20 @@ export default function ReactorSchematic({ selectedId, onSelect, onHover, flowAn
           style={{ color: '#58a6ff' }}
         >
           <g stroke="currentColor" strokeWidth="12" fill="none" opacity="0.1" className="component-shape">
-             <path d="M420,420 Q420,380 500,380 L600,380" />
-             <path d="M680,450 L680,500 Q680,520 600,520 L450,520 Q420,520 420,480" />
+             <path d="M420,320 Q420,280 500,280 L600,280" />
+             <path d="M680,350 L680,400 Q680,420 600,420 L450,420 Q420,420 420,380" />
           </g>
           <g stroke="currentColor" strokeWidth="8" fill="none" opacity="0.4">
-             <path d="M420,420 Q420,380 500,380 L600,380" />
-             <path d="M680,450 L680,500 Q680,520 600,520 L450,520 Q420,520 420,480" />
+             <path d="M420,320 Q420,280 500,280 L600,280" />
+             <path d="M680,350 L680,400 Q680,420 600,420 L450,420 Q420,420 420,380" />
           </g>
           {flowAnimation && (
              <g stroke="currentColor" strokeWidth="2" fill="none" className="flow-path">
-               <path d="M420,420 Q420,380 500,380 L600,380" />
-               <path d="M680,450 L680,500 Q680,520 600,520 L450,520 Q420,520 420,480" />
+               <path d="M420,320 Q420,280 500,280 L600,280" />
+               <path d="M680,350 L680,400 Q680,420 600,420 L450,420 Q420,420 420,380" />
              </g>
           )}
-          <text x="550" y="540" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">SECONDARY STEAM LOOP</text>
+          <text x="550" y="440" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">SECONDARY STEAM LOOP</text>
         </g>
 
         {/* --- COMPONENTS --- */}
@@ -126,12 +132,21 @@ export default function ReactorSchematic({ selectedId, onSelect, onHover, flowAn
         >
           <path 
             className="component-shape"
-            d="M100,450 A100,100 0 1,1 300,450 L300,500 Q300,530 200,530 T100,500 Z" 
+            d="M100,350 A100,100 0 1,1 300,350 L300,400 Q300,430 200,430 T100,400 Z" 
             fill={selectedId === 'core' ? 'url(#grad-core)' : '#0d1117'} 
             stroke="currentColor" 
             strokeWidth="1.5" 
           />
-          <text x="200" y="460" textAnchor="middle" fill="currentColor" className="mono text-[10px] font-bold tracking-widest">REACTOR CORE</text>
+          {/* Pressure Tubes (Technical Detail) */}
+          <g stroke="currentColor" strokeWidth="0.5" opacity="0.3">
+            {[...Array(8)].map((_, i) => (
+              <line key={i} x1={120 + i*22} y1="310" x2={120 + i*22} y2="390" />
+            ))}
+            {[...Array(6)].map((_, i) => (
+              <line key={i} x1="110" y1={320 + i*15} x2="290" y2={320 + i*15} />
+            ))}
+          </g>
+          <text x="200" y="360" textAnchor="middle" fill="currentColor" className="mono text-[10px] font-bold tracking-widest">REACTOR CORE</text>
         </g>
 
         {/* Steam Generator */}
@@ -142,8 +157,8 @@ export default function ReactorSchematic({ selectedId, onSelect, onHover, flowAn
           onMouseLeave={() => handleInteraction('steam', 'leave')}
           style={{ color: '#2980b9' }}
         >
-          <rect className="component-shape" x="380" y="400" width="80" height="120" rx="10" fill={selectedId === 'steam' ? '#2980b911' : '#0d1117'} stroke="currentColor" strokeWidth="1.5" />
-          <text x="420" y="465" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">STEAM GEN</text>
+          <rect className="component-shape" x="380" y="300" width="80" height="120" rx="10" fill={selectedId === 'steam' ? '#2980b911' : '#0d1117'} stroke="currentColor" strokeWidth="1.5" />
+          <text x="420" y="365" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">STEAM GEN</text>
         </g>
 
         {/* Turbine & Generator */}
@@ -154,20 +169,22 @@ export default function ReactorSchematic({ selectedId, onSelect, onHover, flowAn
           onMouseLeave={() => handleInteraction('turbine', 'leave')}
           style={{ color: '#27ae60' }}
         >
-          <path className="component-shape" d="M520,370 L650,370 L650,450 L520,450 Z" fill={selectedId === 'turbine' ? '#27ae6011' : '#0d1117'} stroke="currentColor" strokeWidth="1.5" />
-          <rect className="component-shape" x="660" y="380" width="60" height="60" fill={selectedId === 'turbine' ? '#27ae6011' : '#0d1117'} stroke="currentColor" strokeWidth="1.5" />
-          <text x="585" y="415" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">STEAM TURBINE</text>
-          <text x="690" y="415" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">GEN</text>
+          <path className="component-shape" d="M520,270 L650,270 L650,350 L520,350 Z" fill={selectedId === 'turbine' ? '#27ae6011' : '#0d1117'} stroke="currentColor" strokeWidth="1.5" />
+          <rect className="component-shape" x="660" y="280" width="60" height="60" fill={selectedId === 'turbine' ? '#27ae6011' : '#0d1117'} stroke="currentColor" strokeWidth="1.5" />
+          <text x="585" y="315" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">STEAM TURBINE</text>
+          <text x="690" y="315" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">GEN</text>
         </g>
 
         {/* Cooling Tower */}
         <g 
           className={`component-group cursor-pointer transition-all ${selectedId === 'cooling' ? 'active' : ''}`}
           onClick={() => handleInteraction('cooling', 'click')}
+          onMouseEnter={() => handleInteraction('cooling', 'enter')}
+          onMouseLeave={() => handleInteraction('cooling', 'leave')}
           style={{ color: '#8b949e' }}
         >
-          <path className="component-shape" d="M820,550 L850,350 Q900,340 950,350 L980,550 Z" fill="#161b22" stroke="currentColor" strokeWidth="1.5" />
-          <text x="900" y="460" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">COOLING TOWER</text>
+          <path className="component-shape" d="M820,450 L850,250 Q900,240 950,250 L980,450 Z" fill="#161b22" stroke="currentColor" strokeWidth="1.5" />
+          <text x="900" y="360" textAnchor="middle" fill="currentColor" className="mono text-[8px] font-bold">COOLING TOWER</text>
         </g>
 
         {/* Control Rods (Top of core) */}
@@ -178,15 +195,18 @@ export default function ReactorSchematic({ selectedId, onSelect, onHover, flowAn
           onMouseLeave={() => handleInteraction('fuel_ic', 'leave')}
           style={{ color: '#8e44ad' }}
         >
-          <path d="M150,340 L150,400 M200,340 L200,400 M250,340 L250,400" stroke="currentColor" strokeWidth="3" />
-          <rect x="140" y="320" width="120" height="20" fill="#161b22" stroke="currentColor" strokeWidth="1.5" />
-          <text x="200" y="333" textAnchor="middle" fill="currentColor" className="mono text-[7px] font-bold">CONTROL DRIVES</text>
+          <path d="M150,240 L150,300 M200,240 L200,300 M250,240 L250,300" stroke="currentColor" strokeWidth="3" />
+          <rect x="140" y="220" width="120" height="20" fill="#161b22" stroke="currentColor" strokeWidth="1.5" />
+          <text x="200" y="233" textAnchor="middle" fill="currentColor" className="mono text-[7px] font-bold">CONTROL DRIVES</text>
         </g>
 
         {/* Labels Overlay */}
         <g className="pointer-events-none">
-          <text x="50" y="190" className="mono text-[12px] fill-[#8b949e]">STRUCTURE: CONTAINMENT DOME</text>
-          <text x="350" y="340" className="mono text-[12px] fill-[#8b949e]">SECTION: TURBINE HALL</text>
+          <text x="50" y="90" className="mono text-[12px] fill-[#8b949e]">STRUCTURE: CONTAINMENT DOME</text>
+          <text x="350" y="240" className="mono text-[12px] fill-[#8b949e]">SECTION: TURBINE HALL</text>
+          {/* Technical callouts */}
+          <line x1="200" y1="310" x2="250" y2="280" stroke="#8b949e" strokeWidth="0.5" />
+          <text x="255" y="280" className="mono text-[8px] fill-[#8b949e]">SDS DRIVES</text>
         </g>
       </svg>
     </div>

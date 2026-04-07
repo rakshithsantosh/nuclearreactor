@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function TopNav({ activeTab, setActiveTab }) {
   const tabs = [
-    { label: "3D Explorer", id: "explorer" },
+    { label: "Explorer", id: "explorer" },
     { label: "Value Chain", id: "value_chain" },
     { label: "Investor View", id: "investor_view" },
     { label: "Specs", id: "specs" },
