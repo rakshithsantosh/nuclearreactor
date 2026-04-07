@@ -1,114 +1,65 @@
+import React, { useMemo } from 'react';
 import ReactorCore from './ReactorCore';
-import ControlRods from './ControlRods';
 import SteamGenerator from './SteamGenerator';
 import Turbine from './Turbine';
-import GeneratorUnit from './GeneratorUnit';
-import Condenser from './Condenser';
-import CoolingTower from './CoolingTower';
 import CoolantLoop from './CoolantLoop';
-import Containment from './Containment';
+import ControlRods from './ControlRods';
+import * as THREE from 'three';
 
-export default function ReactorModel({
-  selectedId,
-  hoveredId,
-  onSelect,
-  onHover,
-  exploded,
-  simulationRunning,
-  flowSpeed,
+export default function ReactorModel({ 
+  selectedId, onSelect, explode, clippingPlane, activeLayers 
 }) {
-  const explode = exploded ? 1 : 0;
+  const explodeFactor = explode ? 1 : 0;
 
-  const layout = {
-    reactor: [-12 - 0.8 * explode, 3, 0],
-    steamGenerator: [-5 + 1.6 * explode, 3 + 0.35 * explode, 0],
-    turbine: [2.3 + 2.2 * explode, 4.9 + 0.3 * explode, 0],
-    generator: [6.8 + 3.4 * explode, 4.9 + 0.3 * explode, 0],
-    condenser: [2.3 + 1.6 * explode, 1.5 - 0.2 * explode, 0],
-    coolingTower: [13.6 + 3.6 * explode, 0, 0],
-    containment: [-8.3 + 0.7 * explode, 7.3 + 0.5 * explode, 0],
-  };
+  const layout = useMemo(() => ({
+    core: [0, 0, 0],
+    primary: [-4 - 2 * explodeFactor, 0, 0],
+    steam: [4 + 2 * explodeFactor, 0, 0],
+    turbine: [12 + 6 * explodeFactor, 0, 0],
+    fuel_ic: [0, 6 + 3 * explodeFactor, 0],
+  }), [explodeFactor]);
 
   return (
     <group>
-      <Containment position={layout.containment} />
+      {activeLayers.includes('core') && (
+        <ReactorCore 
+          position={layout.core} 
+          selected={selectedId === 'core'} 
+          clippingPlane={clippingPlane}
+        />
+      )}
+      
+      {activeLayers.includes('primary') && (
+        <CoolantLoop 
+          position={layout.primary} 
+          selected={selectedId === 'primary'} 
+          clippingPlane={clippingPlane}
+        />
+      )}
 
-      <ReactorCore
-        position={layout.reactor}
-        isActive={selectedId === 'core'}
-        isHovered={hoveredId === 'core'}
-        onSelect={onSelect}
-        onHover={onHover}
-        simulationRunning={simulationRunning}
-        flowSpeed={flowSpeed}
-      />
+      {activeLayers.includes('steam') && (
+        <SteamGenerator 
+          position={layout.steam} 
+          selected={selectedId === 'steam'} 
+          clippingPlane={clippingPlane}
+        />
+      )}
 
-      <ControlRods
-        position={layout.reactor}
-        isActive={selectedId === 'controlRods'}
-        isHovered={hoveredId === 'controlRods'}
-        onSelect={onSelect}
-        onHover={onHover}
-      />
+      {activeLayers.includes('turbine') && (
+        <Turbine 
+          position={layout.turbine} 
+          selected={selectedId === 'turbine'} 
+          clippingPlane={clippingPlane}
+        />
+      )}
 
-      <SteamGenerator
-        position={layout.steamGenerator}
-        isActive={selectedId === 'steamGenerator'}
-        isHovered={hoveredId === 'steamGenerator'}
-        onSelect={onSelect}
-        onHover={onHover}
-        simulationRunning={simulationRunning}
-      />
-
-      <Turbine
-        position={layout.turbine}
-        isActive={selectedId === 'turbine'}
-        isHovered={hoveredId === 'turbine'}
-        onSelect={onSelect}
-        onHover={onHover}
-        simulationRunning={simulationRunning}
-        steamPower={flowSpeed}
-      />
-
-      <GeneratorUnit
-        position={layout.generator}
-        isActive={selectedId === 'generator'}
-        isHovered={hoveredId === 'generator'}
-        onSelect={onSelect}
-        onHover={onHover}
-        simulationRunning={simulationRunning}
-        powerLevel={flowSpeed}
-      />
-
-      <Condenser
-        position={layout.condenser}
-        isActive={selectedId === 'condenser'}
-        isHovered={hoveredId === 'condenser'}
-        onSelect={onSelect}
-        onHover={onHover}
-        simulationRunning={simulationRunning}
-        flowSpeed={flowSpeed}
-      />
-
-      <CoolingTower
-        position={layout.coolingTower}
-        isActive={selectedId === 'coolingTower'}
-        isHovered={hoveredId === 'coolingTower'}
-        onSelect={onSelect}
-        onHover={onHover}
-        simulationRunning={simulationRunning}
-        flowSpeed={flowSpeed}
-      />
-
-      <CoolantLoop
-        layout={layout}
-        isActive={selectedId === 'coolantLoop'}
-        isHovered={hoveredId === 'coolantLoop'}
-        onSelect={onSelect}
-        onHover={onHover}
-        simulationRunning={simulationRunning}
-        flowSpeed={flowSpeed}
-      />
+      {activeLayers.includes('fuel_ic') && (
+        <ControlRods 
+          position={layout.fuel_ic} 
+          selected={selectedId === 'fuel_ic'} 
+          clippingPlane={clippingPlane}
+        />
+      )}
     </group>
   );
 }

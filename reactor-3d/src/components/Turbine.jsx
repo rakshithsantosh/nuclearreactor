@@ -1,91 +1,51 @@
-import { useMemo, useRef } from 'react';
-import { useFrame } from '@react-three/fiber';
+import React from 'react';
+import * as THREE from 'three';
 
-export default function Turbine({
-  position,
-  isActive,
-  isHovered,
-  onSelect,
-  onHover,
-  simulationRunning,
-  steamPower,
-}) {
-  const rotorRef = useRef(null);
-  const speedRef = useRef(0.7);
-
-  const bladeAngles = useMemo(
-    () => Array.from({ length: 12 }, (_, index) => (index / 12) * Math.PI * 2),
-    [],
-  );
-
-  useFrame((_, delta) => {
-    if (!rotorRef.current) {
-      return;
-    }
-
-    const targetSpeed = simulationRunning ? 1.1 + steamPower * 3.6 : 0.15;
-    speedRef.current += (targetSpeed - speedRef.current) * Math.min(1, delta * 2.4);
-    rotorRef.current.rotation.x += delta * speedRef.current;
-  });
-
+export default function Turbine({ position, selected, clippingPlane }) {
   return (
-    <group
-      position={position}
-      onClick={(event) => {
-        event.stopPropagation();
-        onSelect('turbine');
-      }}
-      onPointerEnter={(event) => {
-        event.stopPropagation();
-        onHover('turbine');
-      }}
-      onPointerLeave={(event) => {
-        event.stopPropagation();
-        onHover(null);
-      }}
-    >
-      <mesh castShadow receiveShadow rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[1.75, 1.75, 4.8, 56]} />
-        <meshStandardMaterial
-          color={isActive || isHovered ? '#a3a3a3' : '#737373'}
-          metalness={0.86}
-          roughness={0.28}
-          emissive="#f59e0b"
-          emissiveIntensity={isActive ? 0.2 : 0}
+    <group position={position}>
+      {/* High Pressure Stage */}
+      <mesh castShadow receiveShadow>
+        <cylinderGeometry args={[0.8, 1.2, 3, 24]} rotation={[0, 0, Math.PI / 2]} />
+        <meshStandardMaterial 
+          color="#21262d" 
+          metalness={0.9} 
+          roughness={0.1}
+          clippingPlanes={clippingPlane ? [clippingPlane] : []}
+          emissive={selected ? '#27ae60' : '#000000'}
+          emissiveIntensity={0.3}
         />
       </mesh>
 
-      <group ref={rotorRef}>
-        <mesh castShadow receiveShadow rotation={[0, 0, Math.PI / 2]}>
-          <cylinderGeometry args={[0.28, 0.28, 4.6, 22]} />
-          <meshStandardMaterial color="#cbd5e1" metalness={0.88} roughness={0.21} />
-        </mesh>
+      {/* Low Pressure Stages x2 */}
+      <mesh position={[4, 0, 0]} castShadow>
+        <cylinderGeometry args={[1.5, 2.2, 4, 32]} rotation={[0, 0, Math.PI / 2]} />
+        <meshStandardMaterial 
+          color="#30363d" 
+          metalness={0.8} 
+          roughness={0.2}
+          clippingPlanes={clippingPlane ? [clippingPlane] : []}
+          emissive={selected ? '#27ae60' : '#000000'}
+          emissiveIntensity={0.2}
+        />
+      </mesh>
 
-        {bladeAngles.map((angle, index) => (
-          <mesh
-            key={`blade-${index}`}
-            position={[0, Math.cos(angle) * 0.84, Math.sin(angle) * 0.84]}
-            rotation={[0, 0, -Math.PI / 2 + angle]}
-            castShadow
-          >
-            <coneGeometry args={[0.17, 1.18, 10]} />
-            <meshStandardMaterial
-              color={isActive ? '#fbbf24' : '#d1d5db'}
-              emissive={isActive ? '#f59e0b' : '#000000'}
-              emissiveIntensity={isActive ? 0.16 : 0}
-              metalness={0.65}
-              roughness={0.34}
-            />
-          </mesh>
-        ))}
-      </group>
+      {/* Generator Unit */}
+      <mesh position={[8, 0, 0]} castShadow>
+        <boxGeometry args={[3, 3, 3]} />
+        <meshStandardMaterial 
+          color="#161b22" 
+          metalness={0.5} 
+          roughness={0.5}
+          clippingPlanes={clippingPlane ? [clippingPlane] : []}
+        />
+      </mesh>
 
-      <pointLight
-        position={[0.6, 0, 0]}
-        color="#fef3c7"
-        intensity={isActive ? 1.5 : 0.65}
-        distance={6}
-      />
+      {/* Shaft */}
+      <mesh position={[4, 0, 0]} rotation={[0,0,Math.PI/2]}>
+          <cylinderGeometry args={[0.2, 0.2, 12, 12]} />
+          <meshStandardMaterial color="#444" metalness={1} roughness={0} />
+      </mesh>
     </group>
   );
 }

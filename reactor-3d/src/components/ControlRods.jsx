@@ -1,75 +1,48 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import gsap from 'gsap';
+import React from 'react';
+import * as THREE from 'three';
 
-export default function ControlRods({ position, isActive, isHovered, onSelect, onHover }) {
-  const carrierRef = useRef(null);
-  const [inserted, setInserted] = useState(false);
-
-  const rodGrid = useMemo(() => {
-    const rods = [];
-    const spacing = 0.6;
-    for (let row = -2; row <= 2; row += 1) {
-      for (let col = -2; col <= 2; col += 1) {
-        if (Math.hypot(row, col) <= 2.3) {
-          rods.push([row * spacing, col * spacing]);
-        }
-      }
+export default function ControlRods({ position, selected, clippingPlane }) {
+  const rodGrid = [];
+  const spacing = 1.0;
+  for (let x = -1; x <= 1; x++) {
+    for (let y = -1; y <= 1; y++) {
+        rodGrid.push([x * spacing, y * spacing]);
     }
-    return rods;
-  }, []);
-
-  useEffect(() => {
-    if (!carrierRef.current) {
-      return;
-    }
-
-    const tween = gsap.to(carrierRef.current.position, {
-      y: inserted ? -1.35 : 1,
-      duration: 1.1,
-      ease: 'power2.inOut',
-    });
-
-    return () => {
-      tween.kill();
-    };
-  }, [inserted]);
+  }
 
   return (
-    <group
-      position={position}
-      onClick={(event) => {
-        event.stopPropagation();
-        setInserted((state) => !state);
-        onSelect('controlRods');
-      }}
-      onPointerEnter={(event) => {
-        event.stopPropagation();
-        onHover('controlRods');
-      }}
-      onPointerLeave={(event) => {
-        event.stopPropagation();
-        onHover(null);
-      }}
-    >
-      <mesh position={[0, 4.05, 0]} castShadow receiveShadow>
-        <boxGeometry args={[3.1, 0.45, 3.1]} />
-        <meshStandardMaterial
-          color={isActive || isHovered ? '#64748b' : '#475569'}
-          metalness={0.78}
-          roughness={0.32}
-          emissive="#f59e0b"
-          emissiveIntensity={isActive ? 0.24 : isHovered ? 0.12 : 0}
+    <group position={position}>
+      {/* Fuelling Machine Nozzles / Control Drive Mechanism Housing */}
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[4, 1.5, 4]} />
+        <meshStandardMaterial 
+          color="#21262d" 
+          metalness={0.9} 
+          roughness={0.1}
+          clippingPlanes={clippingPlane ? [clippingPlane] : []}
+          emissive={selected ? '#8e44ad' : '#000000'}
+          emissiveIntensity={0.2}
         />
       </mesh>
 
-      <group ref={carrierRef} position={[0, 1, 0]}>
-        {rodGrid.map(([x, z], index) => (
-          <mesh key={`control-${index}`} position={[x, 1.9, z]} castShadow>
-            <cylinderGeometry args={[0.08, 0.08, 4.4, 12]} />
-            <meshStandardMaterial color="#111827" metalness={0.72} roughness={0.45} />
-          </mesh>
-        ))}
-      </group>
+      {/* Control Rod Drives */}
+      {rodGrid.map((pos, i) => (
+        <group key={i} position={[pos[0], -1, pos[1]]}>
+           <mesh castShadow>
+                <cylinderGeometry args={[0.15, 0.15, 4, 16]} />
+                <meshStandardMaterial 
+                    color="#8e44ad" 
+                    emissive="#8e44ad"
+                    emissiveIntensity={selected ? 1.5 : 0.8}
+                    clippingPlanes={clippingPlane ? [clippingPlane] : []}
+                />
+            </mesh>
+            <mesh position={[0, 2.2, 0]}>
+                <cylinderGeometry args={[0.3, 0.3, 0.8, 16]} />
+                <meshStandardMaterial color="#30363d" metalness={1} clippingPlanes={clippingPlane ? [clippingPlane] : []} />
+            </mesh>
+        </group>
+      ))}
     </group>
   );
 }

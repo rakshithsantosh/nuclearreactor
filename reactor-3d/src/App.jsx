@@ -1,136 +1,113 @@
-import { useMemo, useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import TopNav from './components/TopNav';
+import Sidebar from './components/Sidebar';
+import Toolbar from './components/Toolbar';
 import ReactorScene from './components/ReactorScene';
-import InfoPanel from './components/InfoPanel';
-import { cameraPresets, componentData, componentOrder, walkthroughStops } from './data/reactorData';
+import ValueChainTab from './components/ValueChainTab';
+import InvestorViewTab from './components/InvestorViewTab';
+import SpecsTab from './components/SpecsTab';
+import { SUPPLY_DATA } from './data/supplyData';
 
 export default function App() {
+  const [activeTab, setActiveTab] = useState('explorer');
   const [selectedId, setSelectedId] = useState('core');
-  const [focusId, setFocusId] = useState('overview');
-  const [exploded, setExploded] = useState(false);
-  const [simulationRunning, setSimulationRunning] = useState(true);
-  const [flowSpeed, setFlowSpeed] = useState(1);
+  const [hoveredId, setHoveredId] = useState(null);
+  const [view, setView] = useState('full');
+  const [flowAnimation, setFlowAnimation] = useState(false);
+  const [explodeView, setExplodeView] = useState(false);
+  const [activeLayers, setActiveLayers] = useState(['core', 'primary', 'steam', 'turbine', 'fuel_ic']);
 
-  const selectedLabel = componentData[selectedId]?.navLabel ?? 'System';
-
-  const walkthroughButtons = useMemo(() => walkthroughStops, []);
+  const toggleLayer = (id) => {
+    setActiveLayers(layers => 
+      layers.includes(id) ? layers.filter(l => l !== id) : [...layers, id]
+    );
+  };
 
   const handleComponentSelect = (id) => {
     setSelectedId(id);
-    setFocusId(id in cameraPresets ? id : 'overview');
+    if (activeTab !== 'explorer') setActiveTab('explorer');
   };
 
-  const handleWalkthrough = (stop) => {
-    setFocusId(stop.id);
-    if (stop.target) {
-      setSelectedId(stop.target);
-    }
-  };
+  // Keyboard shortcuts (1-5)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const keys = ['1', '2', '3', '4', '5'];
+      const ids = ['core', 'primary', 'steam', 'turbine', 'fuel_ic'];
+      if (keys.includes(e.key)) {
+        const id = ids[keys.indexOf(e.key)];
+        if (id) handleComponentSelect(id);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  const displayId = hoveredId || selectedId;
+  const displayData = SUPPLY_DATA[displayId];
 
   return (
-    <div className="h-screen w-screen overflow-hidden bg-[var(--bg-main)] text-slate-100">
-      <div className="flex h-full flex-col">
-        <header className="z-20 flex flex-wrap items-center justify-between gap-3 border-b border-slate-700/70 bg-slate-950/80 px-4 py-3 backdrop-blur">
-          <div>
-            <p className="brand-font text-xs uppercase tracking-[0.24em] text-amber-400/90">Nuclear Plant Energy Flow Simulator</p>
-            <h1 className="brand-font text-xl font-semibold text-slate-100">Interactive 3D Reactor System Diagram</h1>
-          </div>
+    <div className="h-screen w-screen flex flex-col bg-[#0d1117] text-[#e2e8f0] font-sans">
+      <TopNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      
+      <main className="flex-1 flex overflow-hidden">
+        {/* Main Content Area */}
+        <div className="flex-1 flex flex-col relative min-w-0 bg-[#0d1117]">
+          {activeTab === 'explorer' && (
+            <div className="flex-1 flex flex-col min-h-0">
+              <div className="flex-1 relative">
+                <ReactorScene 
+                  selectedId={selectedId} 
+                  onSelect={handleComponentSelect}
+                  onHover={setHoveredId}
+                  view={view}
+                  flowAnimation={flowAnimation}
+                  explodeView={explodeView}
+                  activeLayers={activeLayers}
+                />
+                
+                {/* HUD Overlay (Bottom-left) */}
+                <div className="absolute bottom-4 left-4 p-4 pointer-events-none z-10 glass-panel rounded-lg border-[#21262d]">
+                  <div className="mono text-[10px] text-[#58a6ff] uppercase mb-1 font-bold">Engineering Readout</div>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex justify-between w-48 border-b border-[#21262d] py-1">
+                      <span className="mono text-[10px] text-[#8b949e]">COMPONENT</span>
+                      <span className="mono text-[10px] text-[#e6edf3] font-bold">{(displayData?.label || "").toUpperCase()}</span>
+                    </div>
+                    <div className="flex justify-between w-48 border-b border-[#21262d] py-1">
+                      <span className="mono text-[10px] text-[#8b949e]">TEMPERATURE</span>
+                      <span className="mono text-[10px] text-[#ebb54a]">310°C / NOMINAL</span>
+                    </div>
+                    <div className="flex justify-between w-48 border-b border-[#21262d] py-1">
+                      <span className="mono text-[10px] text-[#8b949e]">PRIMARY FLOW</span>
+                      <span className="mono text-[10px] text-[#58a6ff]">102.4 bar</span>
+                    </div>
+                    <div className="flex justify-between w-48 py-1">
+                      <span className="mono text-[10px] text-[#8b949e]">SYSTEM STATUS</span>
+                      <span className="mono text-[10px] text-[#2ea043] uppercase">Operational</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <Toolbar 
+                view={view} setView={setView}
+                flowAnimation={flowAnimation} setFlowAnimation={setFlowAnimation}
+                explodeView={explodeView} setExplodeView={setExplodeView}
+                activeLayers={activeLayers}
+                toggleLayer={toggleLayer}
+              />
+            </div>
+          )}
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setSimulationRunning((state) => !state)}
-              className={`rounded border px-3 py-1.5 text-sm font-semibold transition ${
-                simulationRunning
-                  ? 'border-emerald-400/80 bg-emerald-500/15 text-emerald-200'
-                  : 'border-slate-500 bg-slate-800/70 text-slate-300'
-              }`}
-            >
-              {simulationRunning ? 'Pause Simulation' : 'Resume Simulation'}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setExploded((state) => !state)}
-              className={`rounded border px-3 py-1.5 text-sm font-semibold transition ${
-                exploded
-                  ? 'border-amber-400 bg-amber-500/20 text-amber-300'
-                  : 'border-slate-600 bg-slate-800/70 text-slate-200 hover:border-amber-300/80 hover:text-amber-200'
-              }`}
-            >
-              {exploded ? 'Exploded View: On' : 'Exploded View: Off'}
-            </button>
-          </div>
-        </header>
-
-        <div className="z-20 flex items-center gap-3 border-b border-slate-800/80 bg-slate-950/65 px-4 py-2.5 backdrop-blur">
-          <span className="text-xs uppercase tracking-[0.16em] text-slate-300">Flow Speed</span>
-          <input
-            type="range"
-            min="0.2"
-            max="2.5"
-            step="0.1"
-            value={flowSpeed}
-            onChange={(event) => setFlowSpeed(Number(event.target.value))}
-            className="h-1.5 w-56 cursor-pointer appearance-none rounded-lg bg-slate-700"
-          />
-          <span className="min-w-12 text-sm font-semibold text-amber-300">{flowSpeed.toFixed(1)}x</span>
-          <span className="ml-auto text-xs uppercase tracking-[0.12em] text-slate-400">Selected: {selectedLabel}</span>
+          {activeTab === 'value_chain' && <ValueChainTab />}
+          {activeTab === 'investor_view' && <InvestorViewTab />}
+          {activeTab === 'specs' && <SpecsTab />}
         </div>
 
-        <main className="relative min-h-0 flex-1">
-          <ReactorScene
-            selectedId={selectedId}
-            focusId={focusId}
-            onSelect={handleComponentSelect}
-            exploded={exploded}
-            simulationRunning={simulationRunning}
-            flowSpeed={flowSpeed}
-          />
-          <InfoPanel selectedId={selectedId} simulationRunning={simulationRunning} flowSpeed={flowSpeed} />
-        </main>
-
-        <footer className="z-20 space-y-2 border-t border-slate-700/70 bg-slate-950/85 px-3 py-3 backdrop-blur">
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2">
-            {componentOrder.map((id) => {
-              const active = selectedId === id;
-              return (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => handleComponentSelect(id)}
-                  className={`rounded-md border px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.1em] transition ${
-                    active
-                      ? 'border-amber-400 bg-amber-500/20 text-amber-300 shadow-[0_0_16px_rgba(245,158,11,0.34)]'
-                      : 'border-slate-600 bg-slate-800/65 text-slate-300 hover:border-amber-300/70 hover:text-amber-200'
-                  }`}
-                >
-                  {componentData[id].navLabel}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-2">
-            {walkthroughButtons.map((stop) => {
-              const active = focusId === stop.id;
-              return (
-                <button
-                  key={stop.id}
-                  type="button"
-                  onClick={() => handleWalkthrough(stop)}
-                  className={`rounded border px-3 py-1.5 text-xs font-semibold transition ${
-                    active
-                      ? 'border-sky-300/80 bg-sky-400/18 text-sky-200'
-                      : 'border-slate-600 bg-slate-900/70 text-slate-300 hover:border-sky-300/70 hover:text-sky-200'
-                  }`}
-                >
-                  {stop.label}
-                </button>
-              );
-            })}
-          </div>
-        </footer>
-      </div>
+        {/* Right Sidebar (only for Explorer) */}
+        {activeTab === 'explorer' && (
+          <Sidebar selectedId={selectedId} />
+        )}
+      </main>
     </div>
   );
 }

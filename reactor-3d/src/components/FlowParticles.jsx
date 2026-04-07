@@ -1,54 +1,63 @@
-import { useMemo, useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
-export default function FlowParticles({
-  curve,
-  color,
-  count = 20,
-  size = 0.09,
-  speed = 0.25,
-  running = true,
-  opacity = 1,
-}) {
-  const meshRef = useRef(null);
-  const phaseRef = useRef(0);
-  const tempObject = useMemo(() => new THREE.Object3D(), []);
-  const offsets = useMemo(() => Array.from({ length: count }, (_, index) => index / count), [count]);
+export default function FlowParticles({ activeLayers }) {
+  const pointsRef = useRef();
+  const particleCount = 1000;
 
-  useFrame((_, delta) => {
-    if (!meshRef.current) {
-      return;
+  // Create random positions along a figure-8 path for the primary loop
+  const [positions, phases] = useMemo(() => {
+    const pos = new Float32Array(particleCount * 3);
+    const phs = new Float32Array(particleCount);
+    for (let i = 0; i < particleCount; i++) {
+        phs[i] = Math.random() * Math.PI * 2;
+        // Logic for pathing will go here, simplified for now
     }
+    return [pos, phs];
+  }, []);
 
-    if (running) {
-      phaseRef.current = (phaseRef.current + delta * speed) % 1;
+  useFrame((state) => {
+    if (pointsRef.current) {
+        const time = state.clock.getElapsedTime();
+        const positions = pointsRef.current.geometry.attributes.position.array;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const phase = phases[i] + time * 1.5;
+            // Figure-8 pattern simplified:
+            const angle = phase;
+            const x = Math.sin(angle) * 6 - 8; // Offset to loop
+            const y = Math.cos(angle * 2) * 2;
+            const z = Math.sin(angle * 2) * 2;
+
+            positions[i * 3] = x;
+            positions[i * 3 + 1] = y;
+            positions[i * 3 + 2] = z;
+        }
+        pointsRef.current.geometry.attributes.position.needsUpdate = true;
     }
-
-    offsets.forEach((offset, index) => {
-      const point = curve.getPointAt((phaseRef.current + offset) % 1);
-      tempObject.position.copy(point);
-      tempObject.scale.setScalar(1);
-      tempObject.updateMatrix();
-      meshRef.current.setMatrixAt(index, tempObject.matrix);
-    });
-
-    meshRef.current.instanceMatrix.needsUpdate = true;
   });
 
+  if (!activeLayers.includes('primary')) return null;
+
   return (
-    <instancedMesh ref={meshRef} args={[null, null, count]} frustumCulled={false}>
-      <sphereGeometry args={[size, 10, 10]} />
-      <meshStandardMaterial
-        color={color}
-        emissive={color}
-        emissiveIntensity={1.6}
-        transparent
-        opacity={opacity}
-        metalness={0.08}
-        roughness={0.2}
+    <points ref={pointsRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={particleCount}
+          array={positions}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial 
+        size={0.08} 
+        color="#e67e22" 
+        transparent 
+        opacity={0.8}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
       />
-    </instancedMesh>
+    </points>
   );
 }
-
