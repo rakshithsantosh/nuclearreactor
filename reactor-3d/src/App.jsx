@@ -4,7 +4,6 @@ import Sidebar from './components/Sidebar';
 import Toolbar from './components/Toolbar';
 import ReactorSchematic from './components/ReactorSchematic';
 import ValueChainTab from './components/ValueChainTab';
-import InvestorViewTab from './components/InvestorViewTab';
 import SpecsTab from './components/SpecsTab';
 import { SUPPLY_DATA } from './data/supplyData';
 
@@ -85,7 +84,6 @@ export default function App() {
           )}
 
           {activeTab === 'value_chain' && <ValueChainTab />}
-          {activeTab === 'investor_view' && <InvestorViewTab />}
           {activeTab === 'specs' && <SpecsTab />}
         </div>
 
